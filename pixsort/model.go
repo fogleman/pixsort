@@ -24,67 +24,45 @@ type Undo struct {
 
 type Model struct {
 	Points []Point
-	Seen   []bool
-	Total  int
 }
 
 func NewModel(points []Point) *Model {
 	model := Model{}
 	model.Points = points
-	model.Seen = make([]bool, len(points))
-	model.Total = 0
-	for i := 0; i < len(points)-1; i++ {
-		model.Total += points[i].DistanceTo(points[i+1])
-	}
 	return &model
 }
 
 func (m *Model) Energy() float64 {
-	return float64(m.Total)
+	total := 0.0
+	for i := 0; i < len(m.Points)-1; i++ {
+		total += float64(m.Points[i].DistanceTo(m.Points[i+1]))
+	}
+	return total
 }
 
 func (m *Model) DoMove() interface{} {
 	n := len(m.Points)
 	i := rand.Intn(n)
 	j := rand.Intn(n)
-	m.Update(i, j, -1)
-	m.Points[i], m.Points[j] = m.Points[j], m.Points[i]
-	m.Update(i, j, 1)
+	points := m.Points
+	p := points[i]
+	points = append(points[:i], points[i+1:]...)
+	points = append(points[:j], append([]Point{p}, points[j:]...)...)
 	return Undo{i, j}
 }
 
 func (m *Model) UndoMove(undo interface{}) {
 	u := undo.(Undo)
-	i := u.I
-	j := u.J
-	m.Update(i, j, -1)
-	m.Points[i], m.Points[j] = m.Points[j], m.Points[i]
-	m.Update(i, j, 1)
+	j := u.I
+	i := u.J
+	points := m.Points
+	p := points[i]
+	points = append(points[:i], points[i+1:]...)
+	points = append(points[:j], append([]Point{p}, points[j:]...)...)
 }
 
 func (m *Model) Copy() Annealable {
 	points := make([]Point, len(m.Points))
 	copy(points, m.Points)
-	seen := make([]bool, len(m.Seen))
-	return &Model{points, seen, m.Total}
-}
-
-func (m *Model) Update(i, j, sign int) {
-	indexes := []int{i - 1, i, j - 1, j}
-	for _, a := range indexes {
-		if a < 0 || a >= len(m.Seen)-1 {
-			continue
-		}
-		if m.Seen[a] {
-			continue
-		}
-		m.Seen[a] = true
-		m.Total += sign * m.Points[a].DistanceTo(m.Points[a+1])
-	}
-	for _, a := range indexes {
-		if a < 0 || a >= len(m.Seen)-1 {
-			continue
-		}
-		m.Seen[a] = false
-	}
+	return &Model{points}
 }

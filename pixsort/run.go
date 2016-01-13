@@ -11,7 +11,7 @@ func Run(path string) {
 	fmt.Println(len(points))
 	model := NewModel(points)
 	fmt.Println(model.Energy())
-	maxTemp := 100.0
+	maxTemp := 10.0
 	minTemp := 0.1
 	steps := 100000000
 	model = Anneal(model, maxTemp, minTemp, steps).(*Model)
