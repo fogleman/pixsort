@@ -2,13 +2,16 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/fogleman/pixsort/pixsort"
 )
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
 	args := os.Args[1:]
 	if len(args) < 1 || len(args) > 2 {
 		fmt.Println("Usage: pixsort image.png [quality]")

@@ -39,6 +39,9 @@ func (m *Model) DoMove() interface{} {
 	n := len(m.Points)
 	i := rand.Intn(n)
 	j := rand.Intn(n)
+	for m.Closest(i, j) > 50 {
+		j = rand.Intn(n)
+	}
 	s := m.Score
 	m.Update(i, j, -1)
 	m.Move(i, j)
@@ -56,6 +59,26 @@ func (m *Model) Copy() Annealable {
 	points := make([]Point, len(m.Points))
 	copy(points, m.Points)
 	return &Model{points, m.Score}
+}
+
+func (m *Model) Closest(i, j int) int {
+	p := m.Points
+	a := p[i].DistanceTo(p[j])
+	b := a
+	if i < j {
+		if j < len(p)-1 {
+			b = p[i].DistanceTo(p[j+1])
+		}
+	} else {
+		if j > 0 {
+			b = p[i].DistanceTo(p[j-1])
+		}
+	}
+	if a <= b {
+		return a
+	} else {
+		return b
+	}
 }
 
 func (m *Model) Move(i, j int) {

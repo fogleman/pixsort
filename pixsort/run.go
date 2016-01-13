@@ -3,6 +3,7 @@ package pixsort
 import (
 	"fmt"
 	"math"
+	"time"
 )
 
 func Run(path string, quality int) {
@@ -18,8 +19,12 @@ func Run(path string, quality int) {
 	fmt.Printf("Initial Score = %d\n", int(model.Energy()))
 	maxTemp := 10.0
 	minTemp := 0.1
+	start := time.Now()
 	model = Anneal(model, maxTemp, minTemp, iterations).(*Model)
+	elapsed := time.Since(start).Seconds()
 	fmt.Printf("%c[2K", 27)
 	fmt.Printf("  Final Score = %d\n", int(model.Energy()))
-	SaveGIF(path+".gif", 8, w, h, model.Points)
+	fmt.Printf(" Elapsed Time = %.2fs\n", elapsed)
+	out := fmt.Sprintf("%s.%d.gif", path, int(model.Energy()))
+	SaveGIF(out, 8, w, h, model.Points)
 }
