@@ -51,11 +51,14 @@ func CreateFrame(m, w, h int, points []Point) *image.Paletted {
 
 func SaveGIF(path string, m, w, h int, points []Point) error {
 	g := gif.GIF{}
+	g.Image = append(g.Image, CreateFrame(m, w, h, nil))
+	g.Delay = append(g.Delay, 10)
 	for i := range points {
-		im := CreateFrame(m, w, h, points[:i])
-		g.Image = append(g.Image, im)
-		g.Delay = append(g.Delay, 5)
+		g.Image = append(g.Image, CreateFrame(m, w, h, points[:i+1]))
+		g.Delay = append(g.Delay, 10)
 	}
+	g.Image = append(g.Image, CreateFrame(m, w, h, points))
+	g.Delay = append(g.Delay, 100)
 	file, err := os.Create(path)
 	if err != nil {
 		return err
