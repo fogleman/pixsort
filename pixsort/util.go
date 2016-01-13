@@ -25,8 +25,8 @@ func GetPoints(im image.Image) (int, int, []Point) {
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
 			c := im.At(x, y)
-			r, _, _, _ := c.RGBA()
-			if r < 128 {
+			r, _, _, a := c.RGBA()
+			if r < 128 && a > 128 {
 				result = append(result, Point{x, y})
 			}
 		}
