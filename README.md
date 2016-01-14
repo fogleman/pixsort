@@ -15,6 +15,8 @@ Algorithm: Simulated annealing.
     go get github.com/fogleman/pixsort
     pixsort image.png
 
+This will generate a file named `image.png.gif` with the result.
+
 You can also pass in a `quality` parameter to make it try harder.
 
     pixsort image.png 28
