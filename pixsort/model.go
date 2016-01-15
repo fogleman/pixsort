@@ -3,13 +3,18 @@ package pixsort
 import "math/rand"
 
 type Point struct {
-	X, Y int
+	X, Y    int
+	R, G, B byte
 }
 
 func (a Point) DistanceTo(b Point) int {
 	dx := a.X - b.X
 	dy := a.Y - b.Y
-	return dx*dx + dy*dy
+	dr := int(a.R - b.R)
+	dg := int(a.G - b.G)
+	db := int(a.B - b.B)
+	c := dr*dr + dg*dg + db*db
+	return dx*dx + dy*dy + c/256
 }
 
 type Undo struct {

@@ -3,6 +3,7 @@ package pixsort
 import (
 	"image"
 	"image/color"
+	"image/color/palette"
 	"image/gif"
 	"image/png"
 	"os"
@@ -25,24 +26,32 @@ func GetPoints(im image.Image) (int, int, []Point) {
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
 			c := im.At(x, y)
-			r, _, _, a := c.RGBA()
-			if r < 128 && a > 128 {
-				result = append(result, Point{x, y})
+			r, g, b, a := c.RGBA()
+			if a < 255 {
+				continue
 			}
+			if r == 255 && g == 255 && b == 255 {
+				continue
+			}
+			result = append(result, Point{x, y, byte(r), byte(g), byte(b)})
 		}
 	}
 	return w, h, result
 }
 
 func CreateFrame(m, w, h int, points []Point) *image.Paletted {
-	var palette []color.Color
-	palette = append(palette, color.RGBA{255, 255, 255, 255})
-	palette = append(palette, color.RGBA{0, 0, 0, 255})
-	im := image.NewPaletted(image.Rect(0, 0, w*m, h*m), palette)
-	for _, point := range points {
+	im := image.NewPaletted(image.Rect(0, 0, w*m, h*m), palette.Plan9)
+	index := color.Palette(palette.Plan9).Index(color.RGBA{255, 255, 255, 255})
+	for y := 0; y < h*m; y++ {
+		for x := 0; x < w*m; x++ {
+			im.SetColorIndex(x, y, uint8(index))
+		}
+	}
+	for _, p := range points {
 		for y := 0; y < m; y++ {
 			for x := 0; x < m; x++ {
-				im.SetColorIndex(point.X*m+x, point.Y*m+y, 1)
+				c := color.RGBA{p.R, p.G, p.B, 255}
+				im.Set(p.X*m+x, p.Y*m+y, c)
 			}
 		}
 	}
